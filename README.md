@@ -20,7 +20,9 @@ Example of the result
 | Overpass | 2023-06-06   | 14 : 16 | 2.21   | 22    | 21     | 1.05 | 65  | 56      | Gamers Club | /app/match-details/28947206-db6f-45e0-a93c-e7e1b0fd6b8b |
 | Ancient  | 2023-05-30   | 22 : 25 | 0.32   | 36    | 34     | 1.06 | 67  | 41      | Gamers Club | /app/match-details/9f75ef76-89a7-4b77-b8fd-4a7f76c9005f |
 
-###Todo
+### To do
 Still needs to add filter control (currently only listing 60 matches).
+Add Rank
 Retrieve more data based on the link
 Add an R notebook for visualization
+
