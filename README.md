@@ -2,7 +2,12 @@
 ### Discipline of the Data Visualization Course on Master's Degree on Computer Science
 Simple Leetify Web Scrapper 
 
-To run: Install the dependencies BeautifulSoup, Selenium, Pandas and run :)
+I love you leetify plz dont ban me <3
+
+To run: 
+Install the dependencies BeautifulSoup, Selenium, Pandas 
+Place your Leetify ID on scrapper.py line 32
+and run :)
 
 Example of the result
 
