@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import csv
 import time
+import os
 
 # Configurações do WebDriver
 driver = webdriver.Chrome()  # Certifique-se de ter o ChromeDriver instalado e no PATH
@@ -27,9 +28,6 @@ password_field.send_keys(Keys.RETURN)
 # Aguarda a página carregar
 wait.until(EC.url_contains("/matches/list"))
 
-# Aguarda um tempo para carregar as informações
-time.sleep(3)
-
 # IDs e nomes dos jogadores
 players = {
     "Groot": "6bf85c74-711c-4cbb-ab05-4cb123af21d1",
@@ -41,16 +39,15 @@ players = {
     "Batata": "0abebd52-3534-4a4a-adec-c608e35a2399",
     "Anty": "8443bca4-a12a-4be9-a05a-6c197dbe27d7"
 }
-
 # Percorre os jogadores e acessa suas respectivas páginas
 for name, player_id in players.items():
     # Constrói a URL para acessar a página do jogador
     player_url = f"https://leetify.com/app/matches/list?spectating={player_id}"
     # Acessa a página do jogador
     driver.get(player_url)
-    
+
     # Aguarda um tempo adicional para garantir que todos os elementos sejam carregados
-    time.sleep(5)
+    time.sleep(3)
 
     # Obtém o conteúdo HTML atualizado
     conteudo_atualizado = driver.page_source
@@ -61,14 +58,19 @@ for name, player_id in players.items():
     # Analisa o conteúdo HTML do <body>
     soup = BeautifulSoup(body_content, 'html.parser')
 
-    # Encontra o link da partida
-    link_partida = ""
-    celula_link = soup.find('app-matches-list-item').find('a')
-    if celula_link:
-        link_partida = celula_link.get('href')
+    # Encontra todos os elementos app-matches-list-item
+    items = soup.find_all('app-matches-list-item')
+
+    # Percorre todos os elementos e extrai os links de partida
+    links_partida = []
+    for item in items:
+        celula_link = item.find('a')
+        if celula_link:
+            link_partida = celula_link.get('href')
+            links_partida.append(link_partida)
+    time.sleep(2)
 
     tabela = soup.find('app-match-history-container', class_='ng-star-inserted')
-
     if tabela is not None:
         # Encontra as linhas da tabela
         linhas = tabela.find_all('tr')
@@ -93,7 +95,7 @@ for name, player_id in players.items():
                 writer.writerow(cabecalho_csv)
 
                 # Itera pelas linhas e extrai os dados das células
-                for linha in linhas[1:]:  # Começa da segunda linha para evitar o cabeçalho
+                for i, linha in enumerate(linhas[1:], start=1):  # Começa da segunda linha para evitar o cabeçalho
                     # Encontra as células da linha
                     celulas = linha.find_all('td')
 
@@ -111,7 +113,7 @@ for name, player_id in players.items():
                     dados.append(source)
 
                     # Adiciona o link da partida aos dados
-                    dados.append(link_partida)
+                    dados.append( links_partida[i - 1].split('?')[0])
 
                     # Escreve os dados no arquivo CSV
                     writer.writerow(dados)
@@ -122,5 +124,5 @@ for name, player_id in players.items():
     else:
         print(f"Tabela do jogador {name} não encontrada")
 
-# Encerra o WebDriver
-driver.quit()
+os.system("python.exe remove_virgulas.py")
+os.system("python.exe remove_blank_collumns.py")
