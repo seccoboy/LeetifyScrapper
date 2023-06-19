@@ -28,16 +28,9 @@ password_field.send_keys(Keys.RETURN)
 # Aguarda a página carregar
 wait.until(EC.url_contains("/matches/list"))
 
-# IDs e nomes dos jogadores
+# Name and Leetify IDs 
 players = {
-    "Groot": "6bf85c74-711c-4cbb-ab05-4cb123af21d1",
-    "Diego": "830c441d-a376-4404-bac0-36b9a85151b9",
-    "Matt": "d676410e-c3d1-4d57-9ca3-4e19c9038498",
-    "Penk": "ac12d804-0ec0-47a6-b8dd-7632d295f010",
-    "Lubis": "284d0654-0fcc-4591-8965-8e0765843ec4",
-    "Secco": "70f8da09-f645-43cc-8e7b-ba1e5252fd3a",
-    "Batata": "0abebd52-3534-4a4a-adec-c608e35a2399",
-    "Anty": "8443bca4-a12a-4be9-a05a-6c197dbe27d7"
+    "Name of the file": "aaaaaaaa-aaaa-cccc-ssss-123456789101"
 }
 # Percorre os jogadores e acessa suas respectivas páginas
 for name, player_id in players.items():
