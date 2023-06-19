@@ -61,6 +61,12 @@ for name, player_id in players.items():
     # Analisa o conteúdo HTML do <body>
     soup = BeautifulSoup(body_content, 'html.parser')
 
+    # Encontra o link da partida
+    link_partida = ""
+    celula_link = soup.find('app-matches-list-item').find('a')
+    if celula_link:
+        link_partida = celula_link.get('href')
+
     tabela = soup.find('app-match-history-container', class_='ng-star-inserted')
 
     if tabela is not None:
@@ -83,6 +89,7 @@ for name, player_id in players.items():
 
                 # Escreve o cabeçalho do CSV
                 cabecalho_csv = [coluna.text.strip() for coluna in cabecalho]
+                cabecalho_csv.append("Link")  # Adiciona o cabeçalho da nova coluna
                 writer.writerow(cabecalho_csv)
 
                 # Itera pelas linhas e extrai os dados das células
@@ -102,6 +109,9 @@ for name, player_id in players.items():
 
                     # Adiciona o valor da coluna "Source" aos dados
                     dados.append(source)
+
+                    # Adiciona o link da partida aos dados
+                    dados.append(link_partida)
 
                     # Escreve os dados no arquivo CSV
                     writer.writerow(dados)
