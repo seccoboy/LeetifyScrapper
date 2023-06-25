@@ -49,7 +49,7 @@ for link in links:
         for submenu in submenus:
             # Obtém o nome do submenu
             submenu_name = submenu.text.strip()
-            if submenu_name not in ["General","Timeline", "Match Details"]:
+            if submenu_name not in ["General","Timeline", "Match Details","Trades", "Opening Duels","Clutches"]:
                 # Localiza a tabela pelo XPath
                 table = driver.find_element(By.XPATH, '//table[contains(@class, "--collapsed --use-min-width")]')
 
@@ -98,3 +98,5 @@ for link in links:
     
 # Close the browser
 driver.quit()
+
+os.system("python.exe fix_csvs.py")
