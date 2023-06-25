@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from bs4 import BeautifulSoup
 import time
 import csv
 import os
@@ -52,19 +53,29 @@ for link in links:
                 # Localiza a tabela pelo XPath
                 table = driver.find_element(By.XPATH, '//table[contains(@class, "--collapsed --use-min-width")]')
 
+                # Localiza o cabeçalho da tabela
+                header_row = table.find_element(By.TAG_NAME, 'thead')
+                header_cells = header_row.find_elements(By.TAG_NAME, 'th')
+
+                # Extrai o texto dos cabeçalhos
+                header_data = [header_cell.text for header_cell in header_cells]
+                # Escreve os cabeçalhos no arquivo CSV (apenas uma vez)
+                writer.writerow(header_data)
+
+                # Obtém o HTML da tabela
+                table_html = table.get_attribute('outerHTML')
+
+                # Parseia a tabela usando BeautifulSoup
+                soup = BeautifulSoup(table_html, 'html.parser')
+
                 # Obtém todas as linhas da tabela
-                rows = table.find_elements(By.TAG_NAME, 'tr')
+                rows = soup.find_all('tr')
 
                 # Loop através das linhas e extrai os dados das células
                 for row in rows:
-                    cells = row.find_elements(By.TAG_NAME, 'td')
-                    row_data = []
-                    for cell in cells:
-                        # Extrai o texto de cada célula
-                        cell_text = cell.text
-                        # Adiciona o valor à lista de dados da linha
-                        row_data.append(cell_text)
-                    
+                    cells = row.find_all('td')
+                    row_data = [cell.get_text(strip=True) for cell in cells]
+
                     # Escreve a linha no arquivo CSV
                     writer.writerow(row_data)
 
