@@ -21,7 +21,7 @@ for link in links:
     
     # Open the link in the browser
     driver.get(full_link)
-    time.sleep(2)
+    time.sleep(5)
     
     try:
         wait = WebDriverWait(driver, 10)
@@ -34,69 +34,70 @@ for link in links:
 
         # Localiza o menu de detalhes do jogo
         match_details_menu = driver.find_element(By.CLASS_NAME, "match-details-menu")
-        csv_filename = link.split('/')[2]
+        csv_filename = link.split('/')[3]
 
         # Remove caracteres inválidos do nome do arquivo
         csv_filename = ''.join(c for c in csv_filename if c.isalnum() or c in ['-', '_'])
 
-        # Caminho completo para o arquivo CSV
-        csv_filepath = os.path.join('matches/', csv_filename + '.csv')
-        csv_file = open(csv_filepath, 'w', newline='', encoding='utf-8')
-        writer = csv.writer(csv_file)
-
-        # Clica em cada item do submenu
+        # Loop through each submenu
         submenus = match_details_menu.find_elements(By.TAG_NAME, "a")
         for submenu in submenus:
-            # Obtém o nome do submenu
             submenu_name = submenu.text.strip()
-            if submenu_name not in ["General","Timeline", "Match Details","Trades", "Opening Duels","Clutches"]:
-                # Localiza a tabela pelo XPath
+            if submenu_name not in ["Timeline", "Match Details","Activity", "Trades", "Opening Duels", "Clutches"]:
+                # Create a folder for the submenu
+                folder_name = submenu_name.lower().replace(" ", "_")
+                folder_path = os.path.join('matches', folder_name)
+                os.makedirs(folder_path, exist_ok=True)
+
+                # Create the CSV file inside the submenu folder
+                csv_filepath = os.path.join(folder_path, csv_filename + '.csv')
+                csv_file = open(csv_filepath, 'w', newline='', encoding='utf-8')
+                writer = csv.writer(csv_file)
+
+                # Click on the submenu
+                ActionChains(driver).move_to_element(submenu).perform()
+                submenu.click()
+
+                # Wait until the submenu page is loaded
+                submenu_url = "/details-" + submenu_name.lower().replace(" ", "-")
+                wait.until(EC.url_contains(submenu_url))
+
+                # Find the table by XPath
                 table = driver.find_element(By.XPATH, '//table[contains(@class, "--collapsed --use-min-width")]')
 
-                # Localiza o cabeçalho da tabela
+                # Find the table header
                 header_row = table.find_element(By.TAG_NAME, 'thead')
                 header_cells = header_row.find_elements(By.TAG_NAME, 'th')
 
-                # Extrai o texto dos cabeçalhos
+                # Extract the text from the header cells
                 header_data = [header_cell.text for header_cell in header_cells]
-                # Escreve os cabeçalhos no arquivo CSV (apenas uma vez)
+                # Write the headers to the CSV file (only once)
                 writer.writerow(header_data)
 
-                # Obtém o HTML da tabela
+                # Get the HTML of the table
                 table_html = table.get_attribute('outerHTML')
 
-                # Parseia a tabela usando BeautifulSoup
+                # Parse the table using BeautifulSoup
                 soup = BeautifulSoup(table_html, 'html.parser')
 
-                # Obtém todas as linhas da tabela
+                # Find all rows in the table
                 rows = soup.find_all('tr')
 
-                # Loop através das linhas e extrai os dados das células
+                # Loop through the rows and extract cell data
                 for row in rows:
                     cells = row.find_all('td')
                     row_data = [cell.get_text(strip=True) for cell in cells]
 
-                    # Escreve a linha no arquivo CSV
+                    # Write the row to the CSV file
                     writer.writerow(row_data)
 
-                # Move o cursor do mouse para o submenu
-                ActionChains(driver).move_to_element(submenu).perform()
-                
-                # Clica no submenu
-                submenu.click()
+                # Close the CSV file
+                csv_file.close()
+                time.sleep(2)
 
-                # Espera até que a página do submenu esteja carregada
-                submenu_url = "/details-" + submenu_name.lower().replace(" ", "-")
-                wait.until(EC.url_contains(submenu_url))
-                
-        # Fecha o arquivo CSV
-        csv_file.close()
-        
     except Exception as e:
-        print("Erro ao navegar pelos submenus:", str(e))
+        print("Error navigating submenus:", str(e))
         continue
-    
+
 # Close the browser
 driver.quit()
-
-os.system("python.exe fix_csvs.py")
