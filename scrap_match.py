@@ -8,6 +8,9 @@ import time
 import csv
 import os
 
+def replace_text(text):
+    return text.replace("Winning Team\nWIN", "Player")
+
 # Initialize Selenium webdriver
 driver = webdriver.Chrome()  # Replace with the appropriate webdriver for your browser
 
@@ -43,7 +46,7 @@ for link in links:
         submenus = match_details_menu.find_elements(By.TAG_NAME, "a")
         for submenu in submenus:
             submenu_name = submenu.text.strip()
-            if submenu_name not in ["Timeline", "Match Details","Activity", "Trades", "Opening Duels", "Clutches"]:
+            if submenu_name not in ["Activity", "Timeline", "Match Details", "Trades", "Opening Duels", "Clutches"]:
                 # Create a folder for the submenu
                 folder_name = submenu_name.lower().replace(" ", "_")
                 folder_path = os.path.join('matches', folder_name)
@@ -69,8 +72,8 @@ for link in links:
                 header_row = table.find_element(By.TAG_NAME, 'thead')
                 header_cells = header_row.find_elements(By.TAG_NAME, 'th')
 
-                # Extract the text from the header cells
-                header_data = [header_cell.text for header_cell in header_cells]
+                # Extract the text from the header cells and replace the desired text
+                header_data = [replace_text(header_cell.text) for header_cell in header_cells]
                 # Write the headers to the CSV file (only once)
                 writer.writerow(header_data)
 
@@ -86,8 +89,7 @@ for link in links:
                 # Loop through the rows and extract cell data
                 for row in rows:
                     cells = row.find_all('td')
-                    row_data = [cell.get_text(strip=True) for cell in cells]
-
+                    row_data = [replace_text(cell.get_text(strip=True)) for cell in cells]
                     # Write the row to the CSV file
                     writer.writerow(row_data)
 
